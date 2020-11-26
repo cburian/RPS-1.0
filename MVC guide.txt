@@ -1,0 +1,23 @@
+"""
+CONTROLLER:
+
+- accepts user input
+- delegates:
+        - data representation to VIEW
+        - data handling       to MODEL
+
+MODEL
+
+- business logic
+- manages data
+- defines rules and behaviours
+- data can be stored in:
+            - MODEL
+            - database
+- only MODEL has access to database
+
+VIEW:
+
+- presents data to the user
+- NEVER call its own methods
+"""
