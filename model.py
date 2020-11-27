@@ -8,6 +8,10 @@ MODEL
             - MODEL
             - database
 - only MODEL has access to database
+
+Has to do:
+    - return available games
+    - extract rules
 """
 
 
