@@ -1,0 +1,3 @@
+Rock breaks scissors, 
+scissors cuts paper, 
+paper covers rock
