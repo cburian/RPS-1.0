@@ -194,10 +194,15 @@ class Controller:
             login_choice = self.make_choice(login_register_choice_options)
             username, password = self.act_on_login_choice(login_choice)
 
+            # quit game
             if not username:
-                return None  # quit game
+                return None
+
+            # return to main menu:
             elif username == 'q':
-                continue  # return to main menu
+                continue
+
+            # if username and password are accepted:
             else:
                 users = self.get_users_data(password=False)
 
@@ -220,6 +225,8 @@ class Controller:
                     print(eligible_choices_list)
                     old_user_choice = self.make_choice(eligible_choices_list)
                     print('old user choice ===---> ', old_user_choice)
+
+                    # return to main menu:
                     if old_user_choice == 'q':
                         continue
 
@@ -229,6 +236,8 @@ class Controller:
                     play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
                     game_choice = self.make_choice(play_mode_choice_options)
                     print('new game choice ===---> ', game_choice)
+
+                    # return to main menu:
                     if game_choice == 'q':
                         continue
                 break
