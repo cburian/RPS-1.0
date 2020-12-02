@@ -104,7 +104,7 @@ class View:
         print('\t(Q) Quit to main menu')
         self.prt_delimiter(len(action_msg), '+')
 
-    def prt_new_user_menu(self):
+    def prt_new_game_menu(self):
 
         title_msg = 'Chose a play mode:'
         print()

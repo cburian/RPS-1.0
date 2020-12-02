@@ -53,11 +53,11 @@ class Controller:
                 return chosen_game
 
     @staticmethod
-    def chose_login_register():
+    def make_choice(choice_options):
         while True:
             try:
                 choice = input('\n---> Your choice: ').lower()
-                if choice not in ['l', 'r', 'q']:
+                if choice not in choice_options:
                     raise ChoiceError
             except ChoiceError:
                 print('\nInvalid choice!')
@@ -190,19 +190,47 @@ class Controller:
         while True:
             # login menu:
             self.view.print_login_menu()
-            login_choice = self.chose_login_register()
+            login_register_choice_options = ['l', 'r', 'q']
+            login_choice = self.make_choice(login_register_choice_options)
             username, password = self.act_on_login_choice(login_choice)
 
             if not username:
-                return None
+                return None  # quit game
             elif username == 'q':
-                continue
+                continue  # return to main menu
             else:
                 users = self.get_users_data(password=False)
+
+                #  login:
                 if username in users:
-                    self.view.prt_logged_in_menu([0, 0, 0, 0, 0])
+
+                    played_games = [2, 0, 0, 5, 0]
+                    self.view.prt_logged_in_menu(played_games)
+
+                    played_games_choices = ['s', 'e', 'm', 'h', 'i']
+                    zip_nr_of_games_and_choices = zip(played_games_choices,
+                                                      played_games)
+                    zipped_dict = dict(zip_nr_of_games_and_choices)
+                    print(zipped_dict)
+                    eligible_choices_list = []
+                    for k, v in zipped_dict.items():
+                        if v:
+                            eligible_choices_list.append(k)
+                    eligible_choices_list.extend(['n', 'q'])
+                    print(eligible_choices_list)
+                    old_user_choice = self.make_choice(eligible_choices_list)
+                    print('old user choice ===---> ', old_user_choice)
+                    if old_user_choice == 'q':
+                        continue
+
+                #  register:
                 else:
-                    self.view.prt_new_user_menu()
+                    self.view.prt_new_game_menu()
+                    play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
+                    game_choice = self.make_choice(play_mode_choice_options)
+                    print('new game choice ===---> ', game_choice)
+                    if game_choice == 'q':
+                        continue
                 break
 
         print('//// username: ', username)
