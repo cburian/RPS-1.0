@@ -11,11 +11,18 @@ from view import View
 from model import Session
 from model import Player, HumanPlayer
 
+
 class ChoiceError(Exception):
     pass
 
+
 class UsernameToShortException(Exception):
     pass
+
+
+class ListLengthMismatch(Exception):
+    pass
+
 
 class Controller:
     def __init__(self, view: View, session: Session):
@@ -212,22 +219,23 @@ class Controller:
                 #                        quit to main menu:
                 if username in users:
 
-                    # from nr of saved games -> logged in menu:
+                    # from nr of saved games -> view logged in menu:
                     played_games = [2, 0, 0, 5, 0]
                     # todo: get list from saved games
                     self.view.prt_logged_in_menu(played_games)
 
                     played_games_choices = ['s', 'e', 'm', 'h', 'i']
-                    zip_nr_of_games_and_choices = zip(played_games_choices,
-                                                      played_games)
-                    zipped_dict = dict(zip_nr_of_games_and_choices)
-                    print(zipped_dict)
-                    eligible_choices_list = []
-                    for k, v in zipped_dict.items():
-                        if v:
-                            eligible_choices_list.append(k)
-                    eligible_choices_list.extend(['n', 'q'])
+
+                    # based on nr of saved games -> show options:
+                    # do not show option to continue a saved game with 0
+                    # saved games:
+
+                    eligible_choices_list = [x for i, x in
+                                 enumerate(played_games_choices) if
+                                 played_games[i] != 0].extend(['n', 'q'])
+
                     print(eligible_choices_list)
+
                     old_user_choice = self.make_choice(eligible_choices_list)
                     print('old user choice ===---> ', old_user_choice)
 
@@ -235,7 +243,8 @@ class Controller:
                     if old_user_choice == 'q':
                         continue
                     elif old_user_choice == 'n':
-                        print('TODO - go to ')
+                        # TODO - go to New Game menu
+                        print('TODO - go to New Game menu')
 
                 #  registered menu - chose a game to play, or
                 #                          quit to main menu:
@@ -249,6 +258,7 @@ class Controller:
                     if game_choice == 'q':
                         continue
                     elif game_choice == 's':
+                        # TODO - play skirmish
                         print('TODO - play skirmish')
                 break
 
@@ -261,8 +271,6 @@ class Controller:
 
         self.login_register_loop()
 
-
-
         # B. Enter username and password:
         # username = self.ask_for_username()
         # users = self.get_users_data()
@@ -270,7 +278,6 @@ class Controller:
         # self.player_1 = HumanPlayer(username)
 
         # password = self.ask_for_password()
-
 
         # C. Print Menu:
 
@@ -305,6 +312,13 @@ class Controller:
 def main():
     c = Controller(View(), Session())
     c.play_session()
+
+    # played_games = [2, 0, 0, 5, 0]
+    # played_games_choices = ['s', 'e', 'm', 'h', 'i']
+    #
+    # b = [x for i, x in enumerate(played_games_choices) if played_games[i] != 0]
+    # b.extend(['n', 'q'])
+    # print(b)
 
 
 if __name__ == '__main__':
