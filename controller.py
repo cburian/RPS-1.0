@@ -90,7 +90,7 @@ class Controller:
             while True:
                 username = self.ask_for_username_password(password=False)
                 if username in ['q', 'Q']:
-                    return 'q', 'q'  # todo: quit to main menu
+                    return 'q', 'q'  # quit to main menu
                 elif username not in users:
                     self.view.unknown_user_message()
                 else:
@@ -103,7 +103,7 @@ class Controller:
                 user_index = users.index(username)
 
                 if password in ['q', 'Q']:
-                    return 'q', 'q'  # todo: quit to main menu
+                    return 'q', 'q'  # quit to main menu
                 if password not in passwords:
                     self.view.invalid_password_message()
                 else:
