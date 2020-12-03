@@ -204,12 +204,17 @@ class Controller:
 
             # if username and password are accepted:
             else:
+                # all saved usernames
                 users = self.get_users_data(password=False)
 
-                #  login:
+                # logged in menu - chose a new game,
+                #                        continue a saved game, or
+                #                        quit to main menu:
                 if username in users:
 
+                    # from nr of saved games -> logged in menu:
                     played_games = [2, 0, 0, 5, 0]
+                    # todo: get list from saved games
                     self.view.prt_logged_in_menu(played_games)
 
                     played_games_choices = ['s', 'e', 'm', 'h', 'i']
@@ -229,8 +234,11 @@ class Controller:
                     # return to main menu:
                     if old_user_choice == 'q':
                         continue
+                    elif old_user_choice == 'n':
+                        print('TODO - go to ')
 
-                #  register:
+                #  registered menu - chose a game to play, or
+                #                          quit to main menu:
                 else:
                     self.view.prt_new_game_menu()
                     play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
@@ -240,6 +248,8 @@ class Controller:
                     # return to main menu:
                     if game_choice == 'q':
                         continue
+                    elif game_choice == 's':
+                        print('TODO - play skirmish')
                 break
 
         print('//// username: ', username)
