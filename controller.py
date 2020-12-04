@@ -11,9 +11,9 @@ from view import View
 from model import Session
 from model import Player, HumanPlayer
 
-from rps_exceptions import *
+import rps_exceptions as re
 
-from controller_utils import *
+import controller_utils as cu
 
 
 class Controller:
@@ -23,7 +23,119 @@ class Controller:
         self.player_1 = None
         self.player_2 = None
 
+    def act_on_login_choice(self, choice):
+        """
 
+        :param choice: str - can be: -- l, r or q
+        :return username (str / None): None / 'q' / 'username'
+        """
+
+        username = 'John Doe'
+        password = 'password'
+
+        users_data = cu.get_users_data()
+        users = users_data.keys()
+        passwords = users_data.values()
+
+        # ##########
+        # Quit Game:
+        # ##########
+        if choice == 'q':
+            return None
+
+        # ######
+        # LOGIN:
+        # ######
+        elif choice == 'l':
+
+            # verify if username - in database
+            while True:
+
+                username = cu.ask_for_username_password(password=False)
+
+                if username in ['q', 'Q']:
+                    return 'q'  # quit to main menu
+
+                if username in users:
+                    break  # continue to next while
+
+                else:  # if username - not in database => unknown user message
+                    self.view.unknown_user_message()
+
+            # verify password:
+            while True:
+
+                password = cu.ask_for_username_password()
+
+                if password in ['q', 'Q']:
+                    return 'q'  # quit to main menu
+
+                # password does not correspond to user
+                if password != users_data[username]:
+                    self.view.invalid_password_message()
+
+                else:
+                    break  # continue to print welcome back message
+
+            self.view.print_old_user_message(username)
+
+        # #########
+        # Register:
+        # #########
+        elif choice == 'r':
+
+            self.view.print_register_message()
+
+            while True:
+                username = cu.ask_for_username_password(password=False)
+
+                if username in ['q', 'Q']:
+                    return 'q'  # quit to main menu
+
+                # verify if username not already in database:
+                if username in users:
+                    self.view.username_already_in_use_message(username)
+
+                else:
+                    break
+
+            while True:
+
+                password = cu.ask_for_username_password()
+
+                if password in ['q', 'Q']:
+                    return 'q'  # quit to main menu
+                else:
+                    break
+
+            self.view.print_new_user_message(username)
+
+            # todo: write on csv the new user and password
+
+        return username
+
+    @staticmethod
+    def act_on_logged_in_menu(played_games: list, game_choices: list) -> str:
+        """
+        :param played_games: (list): ex: [2, 0, 0, 5, 0]
+        :param game_choices: (list): ['s', 'e', 'm', 'h', 'i']
+
+        :return: choice: (str): - one of: 's', 'e', 'm', 'h', 'i', 'n', 'q'
+        """
+
+        # verify list length match:
+        if len(played_games) != len(game_choices):
+            raise re.ListLengthMismatch
+
+        # only show saved games options:
+        eligible_choices_list = [x for i, x in
+                                 enumerate(game_choices) if
+                                 played_games[i] != 0]
+        eligible_choices_list.extend(['n', 'q'])
+
+        choice = cu.make_choice(eligible_choices_list)
+
+        return choice
 
 
 
@@ -58,126 +170,6 @@ class Controller:
                 chosen_game = game_files[choice - 1]
                 return chosen_game
 
-    def act_on_login_choice(self, choice):
-        """
-
-        :param choice: str - can be: -- l, r or q
-        :return:
-        """
-
-        username = 'John Doe'
-        password = 'password'
-
-        users = self.get_users_data(password=False)
-        passwords = self.get_users_data(password=True)
-
-        # print('users:', users)
-        # print('passwords:', passwords)
-
-        # quit:
-        if choice == 'q':
-            return None, None
-
-        # ######
-        # LOGIN:
-        # ######
-        elif choice == 'l':
-
-            # verify if username - in database
-            while True:
-                username = self.ask_for_username_password(password=False)
-                if username in ['q', 'Q']:
-                    return 'q', 'q'  # quit to main menu
-                elif username in users:
-                    break
-                else:
-                    self.view.unknown_user_message()
-
-            # verify password:
-            while True:
-
-                password = self.ask_for_username_password()
-
-                user_index = users.index(username)
-
-                if password in ['q', 'Q']:
-                    return 'q', 'q'  # quit to main menu
-                if password not in passwords:
-                    self.view.invalid_password_message()
-                else:
-                    password_index = passwords.index(password)
-                    if password_index != user_index:
-                        self.view.invalid_password_message()
-                    else:
-                        break
-
-            self.view.print_old_user_message(username)
-
-        # register:
-        elif choice == 'r':
-            self.view.print_new_user_message()
-            while True:
-                username = self.ask_for_username_password(password=False)
-                if username in ['q', 'Q']:
-                    return 'q', 'q'  # todo: quit to main menu
-                elif username in users:
-                    self.view.username_already_in_use_message(username)
-                else:
-                    break
-
-            while True:
-
-                password = self.ask_for_username_password()
-
-                if password in ['q', 'Q']:
-                    return 'q', 'q'  # todo: quit to main menu
-                else:
-                    break
-
-            # todo: write on csv the new use and password
-
-        return username, password
-
-    @staticmethod
-    def ask_for_username_password(password=True) -> str:
-
-        if password:
-            placeholder = 'password'
-        else:
-            placeholder = 'username'
-
-        while True:
-            try:
-                print(f'\nInput {placeholder} or Quit (Q) to main menu:')
-                player_username = input(f'{placeholder.capitalize()}: ')
-                if player_username not in ['q', 'Q']:
-                    if len(player_username) < 3:
-                        raise UsernameToShortException
-            except UsernameToShortException:
-                print(f'{placeholder.capitalize()} to short! '
-                      f'Minimum 3 characters!')
-            else:
-                return player_username
-
-    @staticmethod
-    def get_users_data(users_file: str = 'users.csv', password=True) -> list:
-        """
-
-        :param users_file: filename of users and password data
-        :param password: bool - if True => returns passwords
-        :return: usernames or passwords
-        """
-        import csv
-        data = []
-        with open(users_file, 'r') as f:
-            reader = csv.reader(f)
-            for row in reader:
-                print(row)
-                if password:
-                    data.append(row[1])
-                else:
-                    data.append(row[0])
-        return data[1:]
 
     def get_com_and_win_dict(self):
         """Chose game. Print rules. Get components and winning dictionary.
@@ -221,7 +213,7 @@ class Controller:
 
         self.view.prt_opponent_choice()
         choices = ['h', 'c', 'q']
-        choice = make_choice(choices)
+        choice = cu.make_choice(choices)
 
         if choice == 'c':
             self.player_2 = Player()
@@ -230,7 +222,7 @@ class Controller:
             # login menu:
             self.view.print_login_menu()
             login_register_choice_options = ['l', 'r', 'q']
-            login_choice = make_choice(login_register_choice_options)
+            login_choice = cu.make_choice(login_register_choice_options)
             username, password = self.act_on_login_choice(login_choice)
 
             self.player_2 = HumanPlayer(username)
@@ -239,65 +231,62 @@ class Controller:
     def login_register_loop(self):
 
         while True:
-            # login menu:
+            # Main menu - Login / Register / Quit:
             self.view.print_login_menu()
             login_register_choice_options = ['l', 'r', 'q']
-            login_choice = make_choice(login_register_choice_options)
-            username, password = self.act_on_login_choice(login_choice)
+            login_choice = cu.make_choice(login_register_choice_options)
+            username = self.act_on_login_choice(login_choice)
 
-            # quit game
+            # Validate username, password:
+            # (Q) - Quit game
             if not username:
                 return None
 
-            # return to main menu:
+            # Return to main menu:
             elif username == 'q':
                 continue
 
             # if username and password are accepted:
             else:
                 # all saved usernames
-                users = self.get_users_data(password=False)
+                users = cu.get_users_data().keys()
 
-                # logged in menu - chose a new game,
-                #                - continue a saved game, or
-                #                - quit to main menu:
+                # ######################################
+                # Logged In Menu - chose a new game,
+                #                - continue a saved game
+                #                - quit to main menu
+                # ######################################
                 if username in users:
 
                     # from nr of saved games -> view logged in menu:
                     played_games = [2, 0, 0, 5, 0]
                     # todo: get list from saved games
+
                     self.view.prt_logged_in_menu(played_games)
 
                     played_games_choices = ['s', 'e', 'm', 'h', 'i']
 
-                    # verify list length match:
-                    if len(played_games) != len(played_games_choices):
-                        raise ListLengthMismatch
+                    old_user_choice = self.act_on_logged_in_menu(
+                                                played_games,
+                                                played_games_choices)
 
-                    # only show saved games options:
-                    eligible_choices_list = [x for i, x in
-                            enumerate(played_games_choices) if
-                            played_games[i] != 0]
-                    eligible_choices_list.extend(['n', 'q'])
-
-                    print(eligible_choices_list)
-
-                    old_user_choice = make_choice(eligible_choices_list)
-                    print('old user choice ===---> ', old_user_choice)
-
-                    # return to main menu:
-                    if old_user_choice == 'q':
+                    if old_user_choice == 'q':  # return to main menu
                         continue
-                    elif old_user_choice == 'n':
+                    elif old_user_choice == 'n':  # new game menu
                         # TODO - go to New Game menu
                         print('TODO - go to New Game menu')
+                    elif old_user_choice in played_games_choices:
+                        # TODO - continue a saved game
+                        print('continue a saved game')
 
-                #  registered menu - chose a game to play, or
-                #                          quit to main menu:
+                # #######################################
+                #  Registered menu - chose a game to play
+                #                  - quit to main menu
+                # #######################################
                 else:
                     self.view.prt_new_game_menu()
                     play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
-                    game_choice = make_choice(play_mode_choice_options)
+                    game_choice = cu.make_choice(play_mode_choice_options)
                     print('new game choice ===---> ', game_choice)
 
                     # return to main menu:
@@ -309,12 +298,13 @@ class Controller:
                 break
 
         print('//// username: ', username)
-        print('//// password: ', password)
+        # print('//// password: ', password)
 
     def play_session(self):
         # A. Welcome message:
-        self.view.print_welcome()
+        self.view.message_welcome()
 
+        # B. Main menu - Login / Register / Quit
         self.login_register_loop()
 
         # B. Enter username and password:
@@ -338,14 +328,6 @@ class Controller:
 def main():
     c = Controller(View(), Session())
     c.play_session()
-
-    # played_games = [2, 0, 0, 5, 0]
-    # played_games_choices = ['s', 'e', 'm', 'h', 'i']
-    #
-    # b = [x for i, x in enumerate(played_games_choices) if played_games[i] != 0]
-    # b.extend(['n', 'q'])
-    # print(b)
-
 
 if __name__ == '__main__':
     main()

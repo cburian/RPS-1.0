@@ -11,7 +11,7 @@ from view_utils import prt_delimiter
 class View:
 
     @staticmethod
-    def print_welcome(self):
+    def message_welcome():
         welcome_msg = 'Welcome to'
         game_name = 'RPS'
         msg_2 = 'A game of Rock Paper Scissors and its variants!'
@@ -24,7 +24,7 @@ class View:
         prt_delimiter(len(msg_2), '=')
 
     @staticmethod
-    def print_login_menu(self):
+    def print_login_menu():
         title_msg = 'Chose your action:'
         print()
         prt_delimiter(len(title_msg), '+')
@@ -34,62 +34,83 @@ class View:
         print('(Q) Quit game')
         prt_delimiter(len(title_msg), '+')
 
-    def username_already_in_use_message(self, username):
+    @staticmethod
+    def unknown_user_message():
+
+        msg = 'Unknown user!'
+
+        print()
+        prt_delimiter(len(msg), '!')
+        print(msg)
+        prt_delimiter(len(msg), '!')
+
+    @staticmethod
+    def invalid_password_message():
+
+        msg = 'Invalid password. Please try again'
+
+        print()
+        prt_delimiter(len(msg), '!')
+        print(msg)
+        prt_delimiter(len(msg), '!')
+
+    @staticmethod
+    def username_already_in_use_message(username):
         msg_1 = f'{username} --- already in use!'
         msg_2 = f'Please choose another or quit to main menu and login.'
 
         print()
-        self.prt_delimiter(len(msg_2), '!')
+        prt_delimiter(len(msg_2), '!')
         print(f'{msg_1:^{len(msg_2)}}')
         print(msg_2)
-        self.prt_delimiter(len(msg_2), '!')
-
-    def invalid_password_message(self):
-        msg = 'Invalid password. Please try again'
-
-        print()
-        self.prt_delimiter(len(msg), '!')
-        print(msg)
-        self.prt_delimiter(len(msg), '!')
-
-    def unknown_user_message(self):
-        msg = 'Unknown user! Please chose another.'
-
-        print()
-        self.prt_delimiter(len(msg), '!')
-        print(msg)
-        self.prt_delimiter(len(msg), '!')
-
-    @staticmethod
-    def print_new_user_message():
-        print()
-        print('Choose a username and password.')
+        prt_delimiter(len(msg_2), '!')
 
     @staticmethod
     def print_old_user_message(username):
         print()
         print(f'Welcome back, {username}!')
 
-    def prt_logged_in_menu(self, game_numbers: list):
+    @staticmethod
+    def print_register_message():
+        print()
+        print('Choose a username and password.')
 
+    @staticmethod
+    def print_new_user_message(username):
+        print()
+        print(f'Hello, {username}. Welcome to RPS! Have fun!')
+
+    @staticmethod
+    def prt_logged_in_menu(game_numbers: list):
+
+        # verify if we have any number not 0 in game_numbers input list:
+        # if the list is all zeros => flag = False => do not print those
+        # choices
         print_continue_flag = False
         for x in game_numbers:
             if x:
                 print_continue_flag = True
 
+        # messages to be printed
         action_msg = 'Chose an action: '
         continue_mgs = 'Continue a saved game:'
-        game_type = ['Skirmish', 'Ranked - Easy',
-                     'Ranked - Medium', 'Ranked - Hard',
+        game_type = ['Skirmish',
+                     'Ranked - Easy',
+                     'Ranked - Medium',
+                     'Ranked - Hard',
                      'Ranked - Impossible']
 
         print()
 
+        # if the list is not all zeros:
         if print_continue_flag:
 
-            self.prt_delimiter(len(action_msg), '+')
+            prt_delimiter(len(action_msg), '+')
+
             print(action_msg)
             print(continue_mgs)
+
+            # print all options associated with non-zero numbers in list:
             for index, nr_of_games in enumerate(game_numbers):
                 if nr_of_games:
                     if index == 0:
@@ -98,22 +119,28 @@ class View:
                         choice = game_type[index][9]
                     msg = f'\t({choice}) {game_type[index]} game ' \
                           f'- {nr_of_games} games'
+
                     print(msg)
+
             print('Or chose: ')
+
+        # if the input list is all zeros:
         else:
-            self.prt_delimiter(len(action_msg), '+')
+
+            prt_delimiter(len(action_msg), '+')
             print(action_msg)
 
         print('\t(N) New game')
         print('\t(Q) Quit to main menu')
-        self.prt_delimiter(len(action_msg), '+')
+        prt_delimiter(len(action_msg), '+')
 
-    def prt_new_game_menu(self):
+    @staticmethod
+    def prt_new_game_menu():
 
         title_msg = 'Chose a play mode:'
         print()
 
-        self.prt_delimiter(len(title_msg), '+')
+        prt_delimiter(len(title_msg), '+')
         print(title_msg)
         print('(S) Skirmish')
         print('(E) Ranked play - Easy -------> win 2 of 10')
@@ -121,7 +148,13 @@ class View:
         print('(H) Ranked play - Hard -------> win 7 of 10')
         print('(I) Ranked play - Impossible -> win 10 of 10')
         print('(Q) Quit to main menu')
-        self.prt_delimiter(len(title_msg), '+')
+        prt_delimiter(len(title_msg), '+')
+
+
+
+
+
+
 
     def prt_opponent_choice(self):
         print()
