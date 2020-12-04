@@ -5,34 +5,30 @@ VIEW:
 - NEVER call its own methods
 """
 
-from view_utils import prt_delimiter
-
 
 class View:
 
-    @staticmethod
     def print_welcome(self):
         welcome_msg = 'Welcome to'
         game_name = 'RPS'
         msg_2 = 'A game of Rock Paper Scissors and its variants!'
         print()
-        prt_delimiter(len(msg_2), '=')
+        self.prt_delimiter(len(msg_2), '=')
         print(f'{welcome_msg:^{len(msg_2)}}')
         print(f'{game_name:^{len(msg_2)}}')
-        prt_delimiter(len(msg_2), '=')
+        self.prt_delimiter(len(msg_2), '=')
         print(msg_2)
-        prt_delimiter(len(msg_2), '=')
+        self.prt_delimiter(len(msg_2), '=')
 
-    @staticmethod
     def print_login_menu(self):
         title_msg = 'Chose your action:'
         print()
-        prt_delimiter(len(title_msg), '+')
+        self.prt_delimiter(len(title_msg), '+')
         print(title_msg)
         print('(L) Login')
         print('(R) Register')
         print('(Q) Quit game')
-        prt_delimiter(len(title_msg), '+')
+        self.prt_delimiter(len(title_msg), '+')
 
     def username_already_in_use_message(self, username):
         msg_1 = f'{username} --- already in use!'

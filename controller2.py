@@ -11,9 +11,17 @@ from view import View
 from model import Session
 from model import Player, HumanPlayer
 
-from rps_exceptions import *
 
-from controller_utils import *
+class ChoiceError(Exception):
+    pass
+
+
+class UsernameToShortException(Exception):
+    pass
+
+
+class ListLengthMismatch(Exception):
+    pass
 
 
 class Controller:
@@ -23,10 +31,17 @@ class Controller:
         self.player_1 = None
         self.player_2 = None
 
-
-
-
-
+    @staticmethod
+    def make_choice(choice_options):
+        while True:
+            try:
+                choice = input('\n---> Your choice: ').lower()
+                if choice not in choice_options:
+                    raise ChoiceError
+            except ChoiceError:
+                print('\nInvalid choice!')
+            else:
+                return choice
 
     @staticmethod
     def chose_game(game_files: list) -> str:
@@ -78,22 +93,18 @@ class Controller:
         if choice == 'q':
             return None, None
 
-        # ######
-        # LOGIN:
-        # ######
+        # login:
         elif choice == 'l':
 
-            # verify if username - in database
             while True:
                 username = self.ask_for_username_password(password=False)
                 if username in ['q', 'Q']:
                     return 'q', 'q'  # quit to main menu
-                elif username in users:
-                    break
-                else:
+                elif username not in users:
                     self.view.unknown_user_message()
+                else:
+                    break
 
-            # verify password:
             while True:
 
                 password = self.ask_for_username_password()
@@ -140,7 +151,7 @@ class Controller:
 
     @staticmethod
     def ask_for_username_password(password=True) -> str:
-
+        # placeholder = ''
         if password:
             placeholder = 'password'
         else:
@@ -172,7 +183,6 @@ class Controller:
         with open(users_file, 'r') as f:
             reader = csv.reader(f)
             for row in reader:
-                print(row)
                 if password:
                     data.append(row[1])
                 else:
@@ -221,7 +231,7 @@ class Controller:
 
         self.view.prt_opponent_choice()
         choices = ['h', 'c', 'q']
-        choice = make_choice(choices)
+        choice = self.make_choice(choices)
 
         if choice == 'c':
             self.player_2 = Player()
@@ -230,7 +240,7 @@ class Controller:
             # login menu:
             self.view.print_login_menu()
             login_register_choice_options = ['l', 'r', 'q']
-            login_choice = make_choice(login_register_choice_options)
+            login_choice = self.make_choice(login_register_choice_options)
             username, password = self.act_on_login_choice(login_choice)
 
             self.player_2 = HumanPlayer(username)
@@ -242,7 +252,7 @@ class Controller:
             # login menu:
             self.view.print_login_menu()
             login_register_choice_options = ['l', 'r', 'q']
-            login_choice = make_choice(login_register_choice_options)
+            login_choice = self.make_choice(login_register_choice_options)
             username, password = self.act_on_login_choice(login_choice)
 
             # quit game
@@ -282,7 +292,7 @@ class Controller:
 
                     print(eligible_choices_list)
 
-                    old_user_choice = make_choice(eligible_choices_list)
+                    old_user_choice = self.make_choice(eligible_choices_list)
                     print('old user choice ===---> ', old_user_choice)
 
                     # return to main menu:
@@ -297,7 +307,7 @@ class Controller:
                 else:
                     self.view.prt_new_game_menu()
                     play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
-                    game_choice = make_choice(play_mode_choice_options)
+                    game_choice = self.make_choice(play_mode_choice_options)
                     print('new game choice ===---> ', game_choice)
 
                     # return to main menu:
