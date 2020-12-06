@@ -25,6 +25,10 @@ class Player:
         self._choice = ''  # game choice: 'rock'
 
     @property
+    def username(self):
+        return self._username
+
+    @property
     def score(self):
         return self.__score
 
@@ -36,11 +40,11 @@ class Player:
     def choice(self):
         return self._choice
 
-    # @choice.setter
-    # def choice(self, choice):
-    #     self.__choice = choice
+    @choice.setter
+    def choice(self, choice):
+        self._choice = choice
 
-    def _set_choice(self, options: list) -> str:
+    def make_game_choice(self, options: list) -> str:
         """Randomly chooses one component from the list
 
             Args:
@@ -61,88 +65,43 @@ class HumanPlayer(Player):
     def __init__(self, username='Player1'):
         super().__init__(username)
 
-    def _set_name(self):
-
-        while True:
-            try:
-                self._username = input('Enter username: ')
-                # todo: use regex - username has to start with letter
-                # todo:           - just letters and numbers allowed
-            except ValueError:
-                print('Username invalid!')
-            else:
-                break
-
-    def _set_choice(self, options: list) -> str:
-        """Randomly chooses one component from the list
-
-            Args:
-                 options (list): - list of game options
-                            ex: ['rock', 'paper', etc.]
-
-            Returns:
-                human_choice (str): - playable character choice
-                            ex: 'rock'
-
-            """
-
-        while True:
-            try:
-                choice = int(input(f'\nYour choice: '))
-                assert choice in [x for x in range(1, len(options) + 1)]
-
-            except (AssertionError, ValueError):
-                print('Please choose on of the options above!')
-
-            else:
-
-                self._choice = options[choice - 1]
-                return self._choice
-
-
-class Round:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def determine_result(player_1_choice, player_2_choice,
-                         win_dic: dict) -> tuple:
-        """Determines the winner of a RPS round
-
-        Args:
-            h_choice (str): - human answer
-                    ex: 'rock'
-
-            npc_choice (str): - npc answer
-                    ex: 'scissors'
-
-            win_dic (dict): - winning dictionary - with the following form:
-                    {(winner, looser) : rule}
-                    ex: {('rock', 'paper') : 'Rock breaks scissors'}
-
-        Returns:
-            winner (str / None): - the winning choice
-                                 - can be: - str: 'rock' - rock won
-                                           - None:       - draw
-
-            winning_rule (str / None): - the rule explaining the win
-                                       - can be: - str: 'Rock breaks scissors'
-                                                 - None: draw
-
-        """
-        p1_c = player_1_choice
-        p2_c = player_2_choice
-        if p1_c != p2_c:
-
-            if (p1_c, p2_c) in win_dic.keys():
-                winner = p1_c
-                winning_rule = win_dic[(p1_c, p2_c)]
-            else:
-                winner = p2_c
-                winning_rule = win_dic[(p2_c, p1_c)]
-            return winner, winning_rule
-
-        return None, None
+    # def _set_name(self):
+    #
+    #     while True:
+    #         try:
+    #             self._username = input('Enter username: ')
+    #             # todo: use regex - username has to start with letter
+    #             # todo:           - just letters and numbers allowed
+    #         except ValueError:
+    #             print('Username invalid!')
+    #         else:
+    #             break
+    #
+    # def _set_choice(self, options: list) -> str:
+    #     """Randomly chooses one component from the list
+    #
+    #         Args:
+    #              options (list): - list of game options
+    #                         ex: ['rock', 'paper', etc.]
+    #
+    #         Returns:
+    #             human_choice (str): - playable character choice
+    #                         ex: 'rock'
+    #
+    #         """
+    #
+    #     while True:
+    #         try:
+    #             choice = int(input(f'\nYour choice: '))
+    #             assert choice in [x for x in range(1, len(options) + 1)]
+    #
+    #         except (AssertionError, ValueError):
+    #             print('Please choose on of the options above!')
+    #
+    #         else:
+    #
+    #             self._choice = options[choice - 1]
+    #             return self._choice
 
 
 class Session:
@@ -224,6 +183,45 @@ class Session:
 
         return list(components), win_dic
 
+    @staticmethod
+    def determine_result(player_1: HumanPlayer, player_2: Player,
+                         win_dic: dict) -> tuple:
+        """Determines the winner of a RPS round
+
+        Args:
+            h_choice (str): - human answer
+                    ex: 'rock'
+
+            npc_choice (str): - npc answer
+                    ex: 'scissors'
+
+            win_dic (dict): - winning dictionary - with the following form:
+                    {(winner, looser) : rule}
+                    ex: {('rock', 'paper') : 'Rock breaks scissors'}
+
+        Returns:
+            winner (str / None): - the winning choice
+                                 - can be: - str: 'rock' - rock won
+                                           - None:       - draw
+
+            winning_rule (str / None): - the rule explaining the win
+                                       - can be: - str: 'Rock breaks scissors'
+                                                 - None: draw
+
+        """
+        p1_c = player_1.choice
+        p2_c = player_2.choice
+        if p1_c != p2_c:
+
+            if (p1_c, p2_c) in win_dic.keys():
+                winner = p1_c
+                winning_rule = win_dic[(p1_c, p2_c)]
+            else:
+                winner = p2_c
+                winning_rule = win_dic[(p2_c, p1_c)]
+            return winner, winning_rule
+
+        return None, None,
 
 
 

@@ -10,6 +10,7 @@ from view_utils import prt_delimiter
 
 class View:
 
+    # menu methods
     @staticmethod
     def message_welcome():
         welcome_msg = 'Welcome to'
@@ -150,23 +151,21 @@ class View:
         print('(Q) Quit to main menu')
         prt_delimiter(len(title_msg), '+')
 
-
-
-
-
-
-
-    def prt_opponent_choice(self):
+    @staticmethod
+    def prt_opponent_choice():
         print()
         title_msg = 'Chose an opponent type:'
-        self.prt_delimiter(len(title_msg, '*'))
+        prt_delimiter(len(title_msg), '*')
+        print(title_msg)
+        prt_delimiter(len(title_msg), '*')
         print('(C) - Computer')
         print('(H) - Human')
         print('(Q) - Quit to main menu')
-        self.prt_delimiter(len(title_msg, '*'))
+        prt_delimiter(len(title_msg), '*')
 
-
-    def print_available_games(self, game_files: list):
+    # game playing methods:
+    @staticmethod
+    def print_available_games(game_files: list):
         """Prints the lists of available games
 
             Args:
@@ -179,11 +178,11 @@ class View:
         available_games_msg = 'Available games:'
         print()
         print(available_games_msg)
-        self.prt_delimiter(len(available_games_msg), '-')
+        prt_delimiter(len(available_games_msg), '-')
         for index, game in enumerate(game_files):
             msg = f'({index + 1}) {game[:-4]}'
             print(f'{msg:^{len(available_games_msg)}}')
-        self.prt_delimiter(len(available_games_msg), '-')
+        prt_delimiter(len(available_games_msg), '-')
 
     @staticmethod
     def print_rules(rules: str):
@@ -214,15 +213,13 @@ class View:
         for index, k in enumerate(components):
             print(f'({index + 1}) {k}')
 
+
+
+
+
+
     @staticmethod
-    def prt_delimiter(length, border: str = '-'):
-        """Applies border to message - for important messages
-
-        todo: make this into a decorator
-        """
-        print(border * length)
-
-    def print_outcome(self, winning_choice: str, winning_rule: str,
+    def print_outcome(winning_choice: str, winning_rule: str,
                       player_1_name: str, player_2_name: str,
                       player_1_choice: str, player_2_choice: str):
         """Prints the outcome of the round
@@ -244,12 +241,29 @@ class View:
 
         """
 
+        p1_choice_msg = f'{player_1_name} choice: {player_1_choice}'
+        p2_choice_msg = f'{player_2_name} choice: {player_2_choice}'
+
+        msg_max_len = max(len(p1_choice_msg), len(p2_choice_msg))
+
+        msg = 'Draw!'
+
+        prt_delimiter(msg_max_len, '=')
+        print(p1_choice_msg)
+        print(p2_choice_msg)
+        prt_delimiter(msg_max_len, '=')
+
         if winning_choice:
-            msg = 'EEERRROOORRR'
+
             if player_1_choice == winning_choice:
                 msg = f'{player_1_name} wins! --- {winning_rule}'
+
             elif player_2_choice == winning_choice:
                 msg = f'{player_2_name} loses! --- {winning_rule}'
-            self.prt_delimiter(msg, '=')
+
+            print(msg)
+            prt_delimiter(msg_max_len, '=')
+
         else:
-            self.prt_delimiter('Draw!', '=')
+            print(msg)
+            prt_delimiter(msg, '=')

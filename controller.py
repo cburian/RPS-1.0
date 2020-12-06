@@ -5,8 +5,8 @@ CONTROLLER:
 - delegates:
         - data representation to VIEW
         - data handling       to MODEL
-
 """
+
 from view import View
 from model import Session
 from model import Player, HumanPlayer
@@ -97,7 +97,17 @@ class Controller:
                     self.view.username_already_in_use_message(username)
 
                 else:
-                    break
+
+                    # reserve "Computer" username:
+                    try:
+                        if username == 'Computer':
+                            raise re.ChoiceError
+                    except re.ChoiceError:
+                        print('The username "Computer" is reserved. '
+                              'Please chose another username!')
+                    else:
+
+                        break
 
             while True:
 
@@ -131,11 +141,47 @@ class Controller:
         eligible_choices_list = [x for i, x in
                                  enumerate(game_choices) if
                                  played_games[i] != 0]
+
+        # extend the list with options for (N) New Game and (Q) Quit
         eligible_choices_list.extend(['n', 'q'])
 
         choice = cu.make_choice(eligible_choices_list)
 
         return choice
+
+    def chose_opponent(self):
+        """
+
+        :return: (bool) -  True - for quitting to main menu later
+        """
+        self.view.prt_opponent_choice()
+        choices = ['c', 'h', 'q']
+        choice = cu.make_choice(choices)
+
+        if choice == 'c':
+            self.player_2 = Player()
+
+            return False
+
+        elif choice == 'h':
+
+            # if human player - login menu:
+            # chose if send player
+            self.view.print_login_menu()
+            login_register_choice_options = ['l', 'r', 'q']
+            login_choice = cu.make_choice(login_register_choice_options)
+            username = self.act_on_login_choice(login_choice)
+
+            self.player_2 = HumanPlayer(username)
+
+            return False
+
+        # quit to main menu:
+        elif choice == 'q':
+
+            return True
+
+
 
 
 
@@ -170,7 +216,6 @@ class Controller:
                 chosen_game = game_files[choice - 1]
                 return chosen_game
 
-
     def get_com_and_win_dict(self):
         """Chose game. Print rules. Get components and winning dictionary.
 
@@ -204,28 +249,69 @@ class Controller:
 
         return components, win_dict
 
-    def play_round(self, components: list, win_dict: dict, player_1, player_2):
+    def play_round(self, components: list,
+                   win_dict: dict):
 
         # print game options:
         self.view.print_options(components)
 
-    def chose_opponent(self):
+        numbers_for_choices_int = list(range(1, len(components) + 1))
+        numbers_for_choices = [str(x) for x in numbers_for_choices_int]
 
-        self.view.prt_opponent_choice()
-        choices = ['h', 'c', 'q']
-        choice = cu.make_choice(choices)
+        # ################################
+        # player_1 (always human) chooses:
+        # you chose a number for each choice (1) rock, (2), paper, ...
+        number_choice = cu.make_choice(numbers_for_choices)
+        self.player_1.choice = components[int(number_choice) - 1]
 
-        if choice == 'c':
-            self.player_2 = Player()
-        elif choice == 'h':
+        # #################
+        # player_2 chooses:
+        if self.player_2.username == 'Computer':
 
-            # login menu:
-            self.view.print_login_menu()
-            login_register_choice_options = ['l', 'r', 'q']
-            login_choice = cu.make_choice(login_register_choice_options)
-            username, password = self.act_on_login_choice(login_choice)
+            self.player_2.choice = self.player_2.make_game_choice(components)
 
-            self.player_2 = HumanPlayer(username)
+        else:
+
+            number_choice = cu.make_choice(numbers_for_choices)
+            self.player_2.choice = components[number_choice - 1]
+
+        # ######################
+        # determine game winner:
+        winner, winning_rule = self.session.determine_result(
+                                    self.player_1.choice,
+                                    self.player_2.choice,
+                                    win_dict)
+
+        # print winner:
+        self.view.print_outcome(winner, winning_rule,
+                                self.player_1.username,
+                                self.player_2.username,
+                                self.player_1.choice,
+                                self.player_2.choice)
+
+    def play_session(self):
+
+        comp, win_dict = self.get_com_and_win_dict()
+
+        self.play_round(comp, win_dict)
+
+        while True:
+            try:
+                another_round = input('\nPlay another round? Y/N: ').lower()
+                if another_round not in ['y', 'n']:
+                    raise re.ChoiceError
+
+                if another_round == 'n':
+                    break
+
+            except re.ChoiceError:
+                print('Please chose YES or NO (Y/N)!')
+
+            else:
+                self.play_round(comp, win_dict)
+
+
+
 
 
     def login_register_loop(self):
@@ -272,9 +358,36 @@ class Controller:
 
                     if old_user_choice == 'q':  # return to main menu
                         continue
-                    elif old_user_choice == 'n':  # new game menu
-                        # TODO - go to New Game menu
-                        print('TODO - go to New Game menu')
+
+                    elif old_user_choice == 'n':
+
+                        # new game menu
+                        self.view.prt_new_game_menu()
+                        play_mode_choice_options = ['s', 'e', 'm', 'h', 'i',
+                                                    'q']
+                        game_choice = cu.make_choice(play_mode_choice_options)
+                        print('logged in + new game choice ===---> ',
+                              game_choice)
+
+                        # Quit to main menu:
+                        if game_choice == 'q':
+                            continue
+
+                        elif game_choice in play_mode_choice_options[:-1]:
+
+                            # chose opponent:
+                            opponent_flag = self.chose_opponent()
+
+                            # quit to main menu if player chooses
+                            if opponent_flag:
+                                continue
+
+                            else:
+                                # todo: play game with choices
+                                print(f'play game with choices: \n'
+                                      f'\t - game choice: {game_choice}\n'
+                                      f'\t - player: {self.player_2.username}')
+
                     elif old_user_choice in played_games_choices:
                         # TODO - continue a saved game
                         print('continue a saved game')
@@ -287,20 +400,33 @@ class Controller:
                     self.view.prt_new_game_menu()
                     play_mode_choice_options = ['s', 'e', 'm', 'h', 'i', 'q']
                     game_choice = cu.make_choice(play_mode_choice_options)
-                    print('new game choice ===---> ', game_choice)
+                    print('registered + new game choice ===---> ',
+                          game_choice)
 
                     # return to main menu:
                     if game_choice == 'q':
                         continue
-                    elif game_choice == 's':
-                        # TODO - play skirmish
-                        print('Chosen play mode: Skirmish')
+
+                    elif game_choice in play_mode_choice_options[:-1]:
+
+                        # chose opponent:
+                        opponent_flag = self.chose_opponent()
+
+                        # quit to main menu if player chooses
+                        if opponent_flag:
+                            continue
+
+                        else:
+                            # todo: play game with choices
+                            print(f'play game with choices: \n'
+                                  f'\t - game choice: {game_choice}\n'
+                                  f'\t - player: {self.player_2.username}')
+                            self.play_session()
                 break
 
         print('//// username: ', username)
-        # print('//// password: ', password)
 
-    def play_session(self):
+    def play_game(self):
         # A. Welcome message:
         self.view.message_welcome()
 
@@ -327,7 +453,8 @@ class Controller:
 
 def main():
     c = Controller(View(), Session())
-    c.play_session()
+    c.play_game()
+
 
 if __name__ == '__main__':
     main()
